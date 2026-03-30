@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Forecasting App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .search-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        #cityInput {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        #cityInput:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            padding: 12px 25px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .btn-clear {
+            background: #e74c3c;
+        }
+
+        .btn-clear:hover {
+            background: #c0392b;
+        }
+
+        .btn-compare {
+            background: #9b59b6;
+        }
+
+        .btn-compare:hover {
+            background: #8e44ad;
+        }
+
+        .weather-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .weather-info {
+            text-align: left;
+            width: 100%;
+        }
+
+        .city-name {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .temperature {
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .weather-detail {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .detail-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .detail-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        .history-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            background: #f5f5f5;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .history-item:hover {
+            background: #eeeeee;
+        }
+
+        .history-city {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .history-details {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .comparison-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .compare-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .compare-inputs {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .alert-error {
+            background: #fee;
+            color: #c00;
+            border-left: 4px solid #c00;
+        }
+
+        .alert-success {
+            background: #efe;
+            color: #060;
+            border-left: 4px solid #060;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            opacity: 0.8;
+        }
+
+        .weather-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .available-cities {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            font-size: 0.9em;
+        }
+
+        .available-cities strong {
+            display: block;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌤️ Weather Forecasting App</h1>
+            <p>Get real-time weather information for cities worldwide</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Search Section -->
+            <div class="card">
+                <h2>Search Weather</h2>
+                <div class="search-section">
+                    <input type="text" id="cityInput" placeholder="Enter city name (e.g., London, New York)..." autocomplete="off">
+                    <button onclick="searchWeather()">Search</button>
+                </div>
+                <div id="weatherResult" class="weather-display">
+                    <p>Enter a city name to get started!</p>
+                </div>
+            </div>
+
+            <!-- Tabs Section -->
+            <div class="card">
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('history')">📋 History</button>
+                    <button class="tab-btn" onclick="switchTab('compare')">⚖️ Compare</button>
+                    <button class="tab-btn" onclick="switchTab('stats')">📊 Stats</button>
+                </div>
+
+                <div id="history" class="tab-content active">
+                    <h3>Search History</h3>
+                    <div class="history-list" id="historyList">
+                        <p style="text-align: center; color: #999;">No searches yet. Try searching for a city!</p>
+                    </div>
+                    <button class="btn-clear" onclick="clearHistory()" style="margin-top: 15px; width: 100%;">Clear History</button>
+                </div>
+
+                <div id="compare" class="tab-content">
+                    <h3>Compare Cities</h3>
+                    <div class="compare-inputs">
+                        <input type="text" id="city1Input" placeholder="First city">
+                        <input type="text" id="city2Input" placeholder="Second city">
+                    </div>
+                    <button class="btn-compare" onclick="compareWeather()" style="width: 100%;">Compare</button>
+                    <div id="comparisonResult" style="margin-top: 15px;"></div>
+                </div>
+
+                <div id="stats" class="tab-content">
+                    <h3>Statistics</h3>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Average Temperature</div>
+                            <div class="stat-value" id="avgTemp">-</div>
+                            <div class="stat-label">°C</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Average Humidity</div>
+                            <div class="stat-value" id="avgHumidity">-</div>
+                            <div class="stat-label">%</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Total Queries</div>
+                            <div class="stat-value" id="totalQueries">-</div>
+                            <div class="stat-label">searches</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>☀️ Weather Forecasting Application v1.0 | Powered by Weather API</p>
+        </footer>
+    </div>
+
+    <script>
+        // Mock Weather Data
+        const weatherData = {
+            'london': { city: 'London', country: 'GB', temp: 15, feelsLike: 13, humidity: 65, windSpeed: 4.5, condition: 'Cloudy', pressure: 1013, visibility: 10000, clouds: 75 },
+            'new york': { city: 'New York', country: 'US', temp: 22.5, feelsLike: 21, humidity: 55, windSpeed: 5.2, condition: 'Sunny', pressure: 1012, visibility: 10000, clouds: 20 },
+            'tokyo': { city: 'Tokyo', country: 'JP', temp: 18, feelsLike: 17, humidity: 70, windSpeed: 3.5, condition: 'Partly Cloudy', pressure: 1015, visibility: 10000, clouds: 50 },
+            'sydney': { city: 'Sydney', country: 'AU', temp: 25, feelsLike: 24, humidity: 60, windSpeed: 6.5, condition: 'Clear', pressure: 1010, visibility: 10000, clouds: 10 },
+            'paris': { city: 'Paris', country: 'FR', temp: 16, feelsLike: 14.5, humidity: 70, windSpeed: 3.8, condition: 'Rainy', pressure: 1011, visibility: 8000, clouds: 90 },
+            'mumbai': { city: 'Mumbai', country: 'IN', temp: 32, feelsLike: 35, humidity: 80, windSpeed: 2.5, condition: 'Humid', pressure: 1008, visibility: 5000, clouds: 40 },
+            'dubai': { city: 'Dubai', country: 'AE', temp: 35, feelsLike: 38, humidity: 45, windSpeed: 7.5, condition: 'Clear', pressure: 1005, visibility: 10000, clouds: 5 },
+            'berlin': { city: 'Berlin', country: 'DE', temp: 14, feelsLike: 12.5, humidity: 68, windSpeed: 4, condition: 'Overcast', pressure: 1014, visibility: 9000, clouds: 85 }
+        };
+
+        let searchHistory = JSON.parse(localStorage.getItem('weatherHistory')) || [];
+
+        document.getElementById('cityInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') searchWeather();
+        });
+
+        function getWeatherData(city) {
+            const normalizedCity = city.toLowerCase().trim();
+            return weatherData[normalizedCity];
+        }
+
+        function searchWeather() {
+            const city = document.getElementById('cityInput').value;
+            if (!city) {
+                showAlert('Please enter a city name', 'error');
+                return;
+            }
+
+            const data = getWeatherData(city);
+            if (!data) {
+                showAlert(`City "${city}" not found. Try: London, New York, Tokyo, Sydney, Paris, Mumbai, Dubai, Berlin`, 'error');
+                document.getElementById('weatherResult').innerHTML = `
+                    <div>
+                        <p>❌ City not found</p>
+                        <div class="available-cities">
+                            <strong>Available cities:</strong>
+                            London, New York, Tokyo, Sydney, Paris, Mumbai, Dubai, Berlin
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            displayWeather(data);
+            addToHistory(data);
+            updateStats();
+            document.getElementById('cityInput').value = '';
+        }
+
+        function displayWeather(data) {
+            const weatherEmoji = getWeatherEmoji(data.condition);
+            document.getElementById('weatherResult').innerHTML = `
+                <div class="weather-info">
+                    <div class="weather-icon">${weatherEmoji}</div>
+                    <div class="city-name">${data.city}, ${data.country}</div>
+                    <div class="temperature">${data.temp}°C</div>
+                    <p style="font-size: 1.1em; margin-bottom: 20px;">${data.condition}</p>
+                    <div class="weather-detail">
+                        <div class="detail-item">
+                            <div class="detail-label">Feels Like</div>
+                            <div class="detail-value">${data.feelsLike}°C</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Humidity</div>
+                            <div class="detail-value">${data.humidity}%</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Wind Speed</div>
+                            <div class="detail-value">${data.windSpeed} m/s</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Pressure</div>
+                            <div class="detail-value">${data.pressure} hPa</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Visibility</div>
+                            <div class="detail-value">${(data.visibility/1000).toFixed(1)} km</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Cloud Coverage</div>
+                            <div class="detail-value">${data.clouds}%</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getWeatherEmoji(condition) {
+            const emojis = {
+                'Sunny': '☀️',
+                'Clear': '🌙',
+                'Cloudy': '☁️',
+                'Rainy': '🌧️',
+                'Snowy': '❄️',
+                'Humid': '💧',
+                'Partly Cloudy': '⛅',
+                'Overcast': '🌥️'
+            };
+            return emojis[condition] || '🌡️';
+        }
+
+        function addToHistory(data) {
+            searchHistory.unshift({
+                ...data,
+                timestamp: new Date().toLocaleString()
+            });
+            if (searchHistory.length > 10) searchHistory.pop();
+            localStorage.setItem('weatherHistory', JSON.stringify(searchHistory));
+            updateHistoryDisplay();
+        }
+
+        function updateHistoryDisplay() {
+            const historyList = document.getElementById('historyList');
+            if (searchHistory.length === 0) {
+                historyList.innerHTML = '<p style="text-align: center; color: #999;">No searches yet.</p>';
+                return;
+            }
+
+            historyList.innerHTML = searchHistory.map((item, index) => `
+                <div class="history-item">
+                    <div class="history-city">${item.city}, ${item.country}</div>
+                    <div class="history-details">
+                        🌡️ ${item.temp}°C | 💧 ${item.humidity}% | ${item.condition} | ${item.timestamp}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function compareWeather() {
+            const city1 = document.getElementById('city1Input').value;
+            const city2 = document.getElementById('city2Input').value;
+
+            if (!city1 || !city2) {
+                showAlert('Please enter both city names', 'error');
+                return;
+            }
+
+            const data1 = getWeatherData(city1);
+            const data2 = getWeatherData(city2);
+
+            if (!data1 || !data2) {
+                showAlert('One or both cities not found', 'error');
+                return;
+            }
+
+            const result = document.getElementById('comparisonResult');
+            result.innerHTML = `
+                <div class="comparison">
+                    <div class="comparison-card">
+                        <h3>${data1.city}, ${data1.country}</h3>
+                        <div style="font-size: 2.5em; margin: 15px 0;">${getWeatherEmoji(data1.condition)}</div>
+                        <div style="font-size: 2em; font-weight: bold; margin: 10px 0;">${data1.temp}°C</div>
+                        <div style="font-size: 1.2em;">${data1.condition}</div>
+                        <div style="margin-top: 15px; font-size: 0.9em;">
+                            <p>Humidity: ${data1.humidity}%</p>
+                            <p>Wind: ${data1.windSpeed} m/s</p>
+                            <p>Pressure: ${data1.pressure} hPa</p>
+                        </div>
+                    </div>
+                    <div class="comparison-card">
+                        <h3>${data2.city}, ${data2.country}</h3>
+                        <div style="font-size: 2.5em; margin: 15px 0;">${getWeatherEmoji(data2.condition)}</div>
+                        <div style="font-size: 2em; font-weight: bold; margin: 10px 0;">${data2.temp}°C</div>
+                        <div style="font-size: 1.2em;">${data2.condition}</div>
+                        <div style="margin-top: 15px; font-size: 0.9em;">
+                            <p>Humidity: ${data2.humidity}%</p>
+                            <p>Wind: ${data2.windSpeed} m/s</p>
+                            <p>Pressure: ${data2.pressure} hPa</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateStats() {
+            if (searchHistory.length === 0) {
+                document.getElementById('avgTemp').textContent = '-';
+                document.getElementById('avgHumidity').textContent = '-';
+                document.getElementById('totalQueries').textContent = '0';
+                return;
+            }
+
+            const avgTemp = (searchHistory.reduce((sum, item) => sum + item.temp, 0) / searchHistory.length).toFixed(2);
+            const avgHumidity = (searchHistory.reduce((sum, item) => sum + item.humidity, 0) / searchHistory.length).toFixed(2);
+
+            document.getElementById('avgTemp').textContent = avgTemp;
+            document.getElementById('avgHumidity').textContent = avgHumidity;
+            document.getElementById('totalQueries').textContent = searchHistory.length;
+        }
+
+        function clearHistory() {
+            if (confirm('Are you sure you want to clear all history?')) {
+                searchHistory = [];
+                localStorage.setItem('weatherHistory', JSON.stringify(searchHistory));
+                updateHistoryDisplay();
+                updateStats();
+                showAlert('History cleared successfully', 'success');
+            }
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            
+            const searchSection = document.querySelector('.search-section');
+            searchSection.parentElement.insertBefore(alertDiv, searchSection.nextSibling);
+            
+            setTimeout(() => alertDiv.remove(), 3000);
+        }
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            updateHistoryDisplay();
+            updateStats();
+        });
+    </script>
+</body>
+</html>
